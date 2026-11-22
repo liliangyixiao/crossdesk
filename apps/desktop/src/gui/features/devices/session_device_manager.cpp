@@ -241,6 +241,10 @@ int SessionDeviceManager::InitializeScreenCapturer() {
             has_previous_frame && duration_ms >= kCaptureResumeKeyFrameGapMs;
         const bool stream_changed = !last_video_frame_stream_id_.empty() &&
                                     last_video_frame_stream_id_ != stream_id;
+        const auto force_keyframe_until =
+            std::chrono::steady_clock::time_point(std::chrono::nanoseconds(
+                force_keyframe_until_ns_.load(std::memory_order_relaxed)));
+        const bool force_keyframe = now_time < force_keyframe_until;
 
         MiniRtcVideoFrame frame{};
         frame.data = reinterpret_cast<const char *>(data);
@@ -259,7 +263,7 @@ int SessionDeviceManager::InitializeScreenCapturer() {
                                                         stream_id)) continue;
           if (owner_.WithController(
                   remote_id, [&](MiniRtcPeerPtr* peer, const std::string& wire) {
-                    if (resumed_after_gap || stream_changed)
+                    if (resumed_after_gap || stream_changed || force_keyframe)
                       MiniRtcRequestVideoKeyFrame(peer, stream_id.c_str());
                     frame.captured_timestamp = MiniRtcGetSystemTimeMicros(peer);
                     return PeerSendVideoFrameToPeer(peer, &frame, stream_id.c_str(),
@@ -848,7 +852,17 @@ bool SessionDeviceManager::SendMouseCommand(const RemoteAction &action,
 int SessionDeviceManager::SwitchDisplay(int display_id) {
   if (!screen_capturer_) return -1;
   const int ret = screen_capturer_->SwitchTo(display_id);
-  if (ret == 0) SyncDisplayInfo();
+  if (ret == 0) {
+    const auto until =
+        std::chrono::steady_clock::now() + std::chrono::seconds(2);
+    force_keyframe_until_ns_.store(
+        std::chrono::duration_cast<std::chrono::nanoseconds>(
+            until.time_since_epoch())
+            .count(),
+        std::memory_order_relaxed);
+    LOG_INFO("Switch display to {}, requesting keyframes for 2s", display_id);
+    SyncDisplayInfo();
+  }
   return ret;
 }
 

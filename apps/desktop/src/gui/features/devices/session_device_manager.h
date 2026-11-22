@@ -146,6 +146,9 @@ private:
   int service_mouse_x_ = 0, service_mouse_y_ = 0;
 #endif
   std::chrono::steady_clock::time_point last_frame_time_{};
+  // After a display switch, ask the encoder for keyframes for a short burst so
+  // a controller that missed the first IDR is not left on the previous frame.
+  std::atomic<int64_t> force_keyframe_until_ns_{0};
   std::chrono::steady_clock::time_point next_frame_deadline_{};
   std::chrono::steady_clock::time_point next_capture_start_retry_{};
   std::mutex capture_metrics_mutex_;
