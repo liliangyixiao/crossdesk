@@ -294,6 +294,7 @@ final class NativeSession implements AutoCloseable {
         if (type == 2 && player != null) player.setEnabled(value != 0);
         execute(() -> { if (connected){nControl(handle, type, value);if(type==4)networkStatistics.resetVideo();} });
     }
+    void requestKeyFrame() { execute(() -> { if (connected) nRequestKeyFrame(handle); }); }
     void lockPrivacy() { sendPrivacy(true); }
     void togglePrivacy() { sendPrivacy(false); }
     private void sendPrivacy(boolean lock) {
@@ -354,6 +355,7 @@ final class NativeSession implements AutoCloseable {
     private static native void nKey(long handle, int code, boolean down);
     private static native void nText(long handle,byte[] text);
     private static native void nControl(long handle, int type, int value);
+    private static native boolean nRequestKeyFrame(long handle);
     private static native boolean nDisplayResolution(long handle,int displayId,String displayKey,int width,int height,long requestId);
     private static native boolean nVideoSettings(long handle,int quality,int frameRate,int preference,long requestId);
     private static native boolean nAnnouncementRequest(long handle,byte[] data);

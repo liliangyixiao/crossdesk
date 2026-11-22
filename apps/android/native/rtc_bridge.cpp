@@ -420,6 +420,13 @@ extern "C" JNIEXPORT void JNICALL JNI_METHOD(nControl)(
   } else return;
   s->Send(kControlStream, action.to_json());
 }
+extern "C" JNIEXPORT jboolean JNICALL JNI_METHOD(nRequestKeyFrame)(
+    JNIEnv*, jclass, jlong handle) {
+  auto* s = From(handle);
+  if (!s || !s->controller || s->stopping) return false;
+  return MiniRtcRequestVideoKeyFrame(
+             s->controller, MakeDisplayStreamId(s->display.load()).c_str()) == 0;
+}
 extern "C" JNIEXPORT jboolean JNICALL JNI_METHOD(nVideoSettings)(
     JNIEnv*, jclass, jlong handle, jint quality, jint rate, jint preference, jlong request_id) {
   auto* s = From(handle);
