@@ -225,6 +225,7 @@ jobs:
 
   # macOS
   build-macos:
+    if: ${{ false }}
     name: Build on macOS
     needs: prepare-version
     runs-on: ${{ matrix.runner }}
@@ -401,7 +402,6 @@ jobs:
 
   # Android (also available as a standalone workflow)
   build-android:
-    if: ${{ false }}
     name: Build Android
     uses: ./.github/workflows/build-android.yml
     with:
