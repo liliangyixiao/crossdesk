@@ -103,6 +103,7 @@ jobs:
           echo "Desktop version: ${VERSION_NUM}"
 
   build-linux:
+    if: ${{ false }}
     name: Build Linux (${{ matrix.arch }})
     needs: prepare-version
     runs-on: ${{ matrix.runner }}
@@ -236,12 +237,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - arch: x64
-            binary_arch: x86_64
-            runner: macos-26-intel
-            cache-key: intel-macos26-xcode26.6-min14
-            out-dir: ./build/macosx/x86_64/release/crossdesk
-            package_script: ./apps/desktop/scripts/macos/pkg_x64.sh
           - arch: arm64
             binary_arch: arm64
             runner: macos-26
@@ -396,6 +391,7 @@ jobs:
 
   # iOS (also available as a standalone workflow)
   build-ios:
+    if: ${{ false }}
     name: Build iOS
     uses: ./.github/workflows/build-ios.yml
     with:
@@ -405,6 +401,7 @@ jobs:
 
   # Android (also available as a standalone workflow)
   build-android:
+    if: ${{ false }}
     name: Build Android
     uses: ./.github/workflows/build-android.yml
     with:
@@ -414,6 +411,7 @@ jobs:
 
   # Windows
   build-windows-x64:
+    if: ${{ false }}
     name: Build on Windows x64
     needs: prepare-version
     runs-on: windows-2022
